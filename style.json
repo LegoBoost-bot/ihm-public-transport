@@ -16,19 +16,10 @@
       "metadata": {"IHM:overlay": true},
       "source": "stations",
       "minzoom": 13,
-      "filter": ["all", ["!=", "status", ""]],
       "layout": {
         "text-field": [
           "concat",
-          ["match", ["get", "name"], "", "", ["concat", ["get", "name"], ": "]],
-          ["get", "status"],
-          [
-            "match",
-            ["get", "date"],
-            "",
-            "",
-            ["concat", " (", ["get", "date"], ")"]
-          ]
+          ["get", "StationId"]
         ],
         "symbol-placement": "point",
         "text-font": ["Open Sans Cond Bold"],
