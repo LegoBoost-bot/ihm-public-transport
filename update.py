@@ -24,7 +24,7 @@ print(f"Collected {len(records)} records.")
 r = [
     {
         "type": "Feature",
-        "properties": {"StationId": r["StationId"]},
+        "properties": {"StationId": r["StationId"], "StationType": r["StationTypeCode"]},
         "geometry": {
             "type": "Point",
             "coordinates": [

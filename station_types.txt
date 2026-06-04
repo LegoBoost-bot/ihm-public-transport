@@ -1,0 +1,8 @@
+1 = normal bus stop
+4 = Jerusalem Light Rail
+5 = Metronit
+6 = Terminal
+8 = Central Station Platforms (prob. ignore)
+9 = Train Station Border (Entrance?)
+11 = Cable Car
+12 = Refreshing Station
