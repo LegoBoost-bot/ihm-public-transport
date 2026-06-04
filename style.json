@@ -5,7 +5,7 @@
   "sources": {
     "stations": {
       "type": "geojson",
-      "data": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/main/source.geojson"
+      "data": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/master/source.geojson"
     }
   },
   "glyphs": "https://israelhikingmap.osm.org.il/fonts/{fontstack}/{range}.pbf",
