@@ -5,5 +5,12 @@
     "width": 48,
     "x": 0,
     "y": 0
+  },
+  "light_rail": {
+    "height": 48,
+    "pixelRatio": 1,
+    "width": 48,
+    "x": 48,
+    "y": 0
   }
 }
