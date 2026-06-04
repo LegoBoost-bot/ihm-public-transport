@@ -1,0 +1,50 @@
+{
+  "version": 8,
+  "name": "Public Transport",
+  "metadata": {"maputnik:renderer": "mbgljs", "openmaptiles:version": "3.x"},
+  "sources": {
+    "stations": {
+      "type": "geojson",
+      "data": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/main/source.geojson"
+    }
+  },
+  "glyphs": "https://israelhikingmap.osm.org.il/fonts/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "public-transport",
+      "type": "symbol",
+      "metadata": {"IHM:overlay": true},
+      "source": "stations",
+      "minzoom": 13,
+      "filter": ["all", ["!=", "status", ""]],
+      "layout": {
+        "text-field": [
+          "concat",
+          ["match", ["get", "name"], "", "", ["concat", ["get", "name"], ": "]],
+          ["get", "status"],
+          [
+            "match",
+            ["get", "date"],
+            "",
+            "",
+            ["concat", " (", ["get", "date"], ")"]
+          ]
+        ],
+        "symbol-placement": "point",
+        "text-font": ["Open Sans Cond Bold"],
+        "text-size": 18,
+        "text-letter-spacing": 0.2,
+        "text-anchor": "top"
+      },
+      "paint": {
+        "text-color": "#125595",
+        "text-halo-color": "white",
+        "text-halo-width": 1.5,
+        "text-halo-blur": 1,
+        "text-translate": [0, 6]
+      }
+    }
+  ],
+  "id": "floods"
+}
+
