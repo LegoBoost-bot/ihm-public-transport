@@ -15,7 +15,7 @@
       "type": "symbol",
       "metadata": {"IHM:overlay": true},
       "source": "stations",
-      "minzoom": 13,
+      "minzoom": 15,
       "layout": {
         "text-field": [
           "concat",
