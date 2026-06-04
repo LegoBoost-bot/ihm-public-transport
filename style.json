@@ -1,41 +1,42 @@
 {
   "version": 8,
   "name": "Public Transport",
-  "metadata": {"maputnik:renderer": "mbgljs", "openmaptiles:version": "3.x"},
+  "metadata": {},
   "sources": {
     "stations": {
       "type": "geojson",
       "data": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/master/source.geojson"
     }
   },
+  "sprite": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/master/sprites/sprite",
   "glyphs": "https://israelhikingmap.osm.org.il/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "public-transport",
       "type": "symbol",
-      "metadata": {"IHM:overlay": true},
       "source": "stations",
-      "minzoom": 15,
       "layout": {
-        "text-field": [
-          "concat",
-          ["get", "StationId"]
+        "icon-image": [
+          "match",
+          ["get", "StationType"],
+          4,
+          "light_rail",
+          5,
+          "light_rail",
+          18,
+          "light_rail",
+          7,
+          "train",
+          1,
+          "bus_stop",
+          12,
+          "bus_stop",
+          ""
         ],
-        "symbol-placement": "point",
-        "text-font": ["Open Sans Cond Bold"],
-        "text-size": 18,
-        "text-letter-spacing": 0.2,
-        "text-anchor": "top"
-      },
-      "paint": {
-        "text-color": "#125595",
-        "text-halo-color": "white",
-        "text-halo-width": 1.5,
-        "text-halo-blur": 1,
-        "text-translate": [0, 6]
+        "icon-size": 0.5,
+        "text-allow-overlap": false
       }
     }
   ],
-  "id": "floods"
+  "id": "public-transport"
 }
-
