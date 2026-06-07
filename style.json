@@ -8,7 +8,12 @@
       "data": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/master/source.geojson"
     }
   },
-  "sprite": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/master/sprites/sprite",
+  "sprite": [
+    {
+      "id": "stops",
+      "url": "https://raw.githubusercontent.com/legoboost-bot/ihm-public-transport/master/sprites/sprite"
+    }
+  ],
   "glyphs": "https://israelhikingmap.osm.org.il/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
@@ -20,17 +25,17 @@
           "match",
           ["get", "StationType"],
           4,
-          "light_rail",
+          "stops:light_rail",
           5,
-          "light_rail",
+          "stops:light_rail",
           18,
-          "light_rail",
+          "stops:light_rail",
           7,
-          "train",
+          "stops:train",
           1,
-          "bus_stop",
+          "stops:bus_stop",
           12,
-          "bus_stop",
+          "stops:bus_stop",
           ""
         ],
         "text-field": ["step", ["zoom"], "", 16, ["get", "StationId"]],
