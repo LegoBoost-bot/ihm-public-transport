@@ -1,0 +1,23 @@
+{
+  "bus_stop": {
+    "height": 96,
+    "pixelRatio": 2,
+    "width": 96,
+    "x": 0,
+    "y": 0
+  },
+  "light_rail": {
+    "height": 96,
+    "pixelRatio": 2,
+    "width": 96,
+    "x": 96,
+    "y": 0
+  },
+  "train": {
+    "height": 96,
+    "pixelRatio": 2,
+    "width": 96,
+    "x": 0,
+    "y": 96
+  }
+}
