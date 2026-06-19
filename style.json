@@ -17,29 +17,29 @@
   "glyphs": "https://israelhikingmap.osm.org.il/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
-      "id": "pt-icon",
-      "type": "symbol",
-      "source": "stations",
-      "minzoom": 12.5,
-      "paint": {
-        "text-color": "#0000FF"
-      },
-      "layout": {
-        "text-field": "🚏",
-        "text-allow-overlap": true
-      }
-    },
-    {
       "id": "public-transport",
       "type": "symbol",
       "source": "stations",
-      "minzoom": 16,
       "layout": {
-        "text-field": [
-          "get",
-          "StationId"
+        "icon-image": [
+          "match",
+          ["get", "StationType"],
+          4,
+          "stops:light_rail",
+          5,
+          "stops:light_rail",
+          18,
+          "stops:light_rail",
+          7,
+          "stops:train",
+          1,
+          "stops:bus_stop",
+          12,
+          "stops:bus_stop",
+          ""
         ],
-        "text-allow-overlap": true,
+        "text-field": ["step", ["zoom"], "", 16, ["get", "StationId"]],
+        "icon-size": 0.5,
         "text-anchor": "top",
         "text-offset": [0, 0.75]
       }
