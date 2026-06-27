@@ -34,7 +34,7 @@
           ""
         ],
         "text-field": ["step", ["zoom"], "", 16, ["get", "StationId"]],
-        "icon-size": 0.12,
+        "icon-size": 0.2,
         "text-anchor": "top",
         "text-offset": [0, 0.75]
       }
