@@ -14,7 +14,7 @@
       "id": "public-transport",
       "type": "symbol",
       "source": "stations",
-      "minzoom": 12,
+      "minzoom": 14,
       "layout": {
         "icon-image": [
           "match",
