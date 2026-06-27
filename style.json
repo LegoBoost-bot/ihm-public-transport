@@ -14,6 +14,7 @@
       "id": "public-transport",
       "type": "symbol",
       "source": "stations",
+      "minzoom": 12,
       "layout": {
         "icon-image": [
           "match",
@@ -33,7 +34,7 @@
           ""
         ],
         "text-field": ["step", ["zoom"], "", 16, ["get", "StationId"]],
-        "icon-size": 0.5,
+        "icon-size": 0.12,
         "text-anchor": "top",
         "text-offset": [0, 0.75]
       }
