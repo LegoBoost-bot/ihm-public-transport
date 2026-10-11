@@ -1,0 +1,204 @@
+{
+  "version": 8,
+  "name": "Blind Topo",
+  "metadata": {"maputnik:renderer": "mlgljs"},
+  "sources": {
+    "mapeak-schema": {
+      "type": "vector",
+      "url": "https://mapeak.com/vector/data/mapeak-schema.json",
+      "tiles": ["https://mapeak.com/vector/data/mapeak-schema/{z}/{x}/{y}.mvt"],
+      "maxzoom": 14,
+      "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
+    },
+    "mapeak-code": {
+      "type": "vector",
+      "url": "https://mapeak.com/vector/data/mapeak-code.json",
+      "tiles": ["https://mapeak.com/vector/data/mapeak-code/{z}/{x}/{y}.mvt"],
+      "maxzoom": 14,
+      "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
+    },
+    "Contour": {
+      "type": "vector",
+      "url": "https://mapeak.com/vector/data/contour.json",
+      "tiles": ["https://mapeak.com/vector/data/contour/{z}/{x}/{y}.mvt"],
+      "minzoom": 7,
+      "maxzoom": 12,
+      "attribution": "<a href=https://earth.jaxa.jp/en/data/policy/>AW3D30 (JAXA)</a>"
+    }
+  },
+  "sprite": "",
+  "glyphs": "https://mapeak.com/assets/glyphs/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {"background-color": "rgb(250, 247, 225)"}
+    },
+    {
+      "id": "contour-minor",
+      "type": "line",
+      "source": "Contour",
+      "source-layer": "contours",
+      "minzoom": 9,
+      "filter": [
+        "let",
+        "ele",
+        ["to-number", ["get", "ele"]],
+        ["==", 0, ["%", ["var", "ele"], 10]]
+      ],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "line-color": "rgba(0, 0, 0, 1)",
+        "line-width": 0.5,
+        "line-opacity": 1,
+        "line-layer-opacity": 0.5
+      }
+    },
+    {
+      "id": "contour-major",
+      "type": "line",
+      "source": "Contour",
+      "source-layer": "contours",
+      "minzoom": 9,
+      "filter": [
+        "let",
+        "ele",
+        ["to-number", ["get", "ele"]],
+        ["==", 0, ["%", ["var", "ele"], 50]]
+      ],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "line-color": "rgba(0, 0, 0, 1)",
+        "line-width": 1,
+        "line-opacity": 1,
+        "line-layer-opacity": 0.5
+      }
+    },
+    {
+      "id": "peak-dot",
+      "type": "circle",
+      "source": "mapeak-schema",
+      "source-layer": "mountain_peak",
+      "filter": ["all", ["==", "$type", "Point"]],
+      "paint": {"circle-radius": 3}
+    },
+    {
+      "id": "peak-ele",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "mountain_peak",
+      "filter": ["all", ["has", "ele"], ["==", "$type", "Point"]],
+      "layout": {
+        "text-field": [
+          "to-string",
+          ["round", ["*", 1, ["to-number", ["get", "ele"]]]]
+        ],
+        "symbol-placement": "point",
+        "text-font": ["Noto Sans Condensed"],
+        "text-letter-spacing": 0,
+        "text-max-width": 5,
+        "text-anchor": "center",
+        "text-padding": 0,
+        "text-offset": [0, -0.7],
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": "#404040",
+        "text-halo-color": "white",
+        "text-halo-width": 2,
+        "text-halo-blur": 1.5
+      }
+    },
+    {
+      "id": "water-area",
+      "type": "fill",
+      "source": "mapeak-schema",
+      "source-layer": "water",
+      "filter": ["!=", "intermittent", 1],
+      "layout": {"visibility": "visible"},
+      "paint": {
+        "fill-color": "#8EBDF0",
+        "fill-antialias": true,
+        "fill-outline-color": [
+          "match",
+          ["get", "class"],
+          "ocean",
+          "transparent",
+          "#1E80E2"
+        ]
+      }
+    },
+    {
+      "id": "grid-lines-minor",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "itm_grid",
+      "filter": ["all"],
+      "paint": {
+        "line-color": "rgb(127, 127, 127)",
+        "line-width": {"base": 2, "stops": [[8, 0.5], [11, 1]]}
+      }
+    },
+    {
+      "id": "grid-lines-major",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "itm_grid",
+      "filter": ["any", [">=", "east_rank", 10], [">=", "north_rank", 10]],
+      "paint": {"line-color": "rgb(127, 127, 127)", "line-width": 2}
+    },
+    {
+      "id": "grid-label-east",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "itm_grid",
+      "minzoom": 9,
+      "filter": [
+        "all",
+        [">=", "north_rank", 10],
+        ["in", "east_rank", 2, 10, 20]
+      ],
+      "layout": {
+        "text-field": "{east}",
+        "symbol-placement": "point",
+        "text-font": ["Noto Sans Condensed"],
+        "text-ignore-placement": true
+      },
+      "paint": {
+        "text-color": "#7F7F7F",
+        "text-halo-width": 2,
+        "text-halo-blur": 1.5,
+        "text-halo-color": "white",
+        "text-translate": [0, -30]
+      }
+    },
+    {
+      "id": "grid-label-north",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "itm_grid",
+      "minzoom": 9,
+      "filter": [
+        "all",
+        [">=", "east_rank", 10],
+        ["in", "north_rank", 2, 10, 20]
+      ],
+      "layout": {
+        "text-field": "{north}",
+        "symbol-placement": "point",
+        "text-font": ["Noto Sans Condensed"],
+        "text-anchor": "center",
+        "text-justify": "left",
+        "text-ignore-placement": true
+      },
+      "paint": {
+        "text-color": "#7F7F7F",
+        "text-halo-width": 2,
+        "text-halo-blur": 1.5,
+        "text-halo-color": "white",
+        "text-translate": [30, 0]
+      }
+    }
+  ],
+  "id": "blind-heightmap"
+}
