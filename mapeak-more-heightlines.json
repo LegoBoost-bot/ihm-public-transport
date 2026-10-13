@@ -196,7 +196,7 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        ["==", 0, ["%", ["var", "ele"], 10]],
+        ["==", 0, ["%", ["var", "ele"], 10]]
       ],
       "paint": {
         "line-color": "white",
@@ -215,7 +215,7 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        ["==", 0, ["%", ["var", "ele"], 50]],
+        ["==", 0, ["%", ["var", "ele"], 50]]
       ],
       "paint": {
         "line-color": "white",
@@ -234,7 +234,7 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        ["==", 0, ["%", ["var", "ele"], 10]],
+        ["==", 0, ["%", ["var", "ele"], 10]]
       ],
       "paint": {
         "line-color": "rgb(161, 127, 86)",
@@ -252,7 +252,7 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        ["==", 0, ["%", ["var", "ele"], 50]],
+        ["==", 0, ["%", ["var", "ele"], 50]]
       ],
       "paint": {
         "line-color": "rgb(161, 127, 86)",
