@@ -3,29 +3,27 @@
   "name": "mapeak-hike",
   "metadata": {
     "owner": "Zeev Stadler",
-    "copyright": "Copyright Zeev Stadler 2019-2025. All Rights Reserved."
+    "copyright": "Copyright Zeev Stadler 2019-2026. All Rights Reserved."
   },
   "sources": {
-    "IHM": {
+    "mapeak-schema": {
       "type": "vector",
-      "url": "https://mapeak.com/vector/data/IHM-schema.json",
-      "tiles": ["https://mapeak.com/vector/data/IHM-schema/{z}/{x}/{y}.mvt"],
+      "url": "https://mapeak.com/vector/data/mapeak-schema.json",
+      "tiles": ["https://mapeak.com/vector/data/mapeak-schema/{z}/{x}/{y}.mvt"],
       "maxzoom": 14,
       "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
     },
-    "IHM-code": {
+    "mapeak-code": {
       "type": "vector",
-      "url": "https://mapeak.com/vector/data/IHM-code.json",
-      "tiles": ["https://mapeak.com/vector/data/IHM-code/{z}/{x}/{y}.mvt"],
+      "url": "https://mapeak.com/vector/data/mapeak-code.json",
+      "tiles": ["https://mapeak.com/vector/data/mapeak-code/{z}/{x}/{y}.mvt"],
       "maxzoom": 14,
       "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
     },
     "DEM": {
       "type": "raster-dem",
-      "url": "https://global.israelhikingmap.workers.dev/jaxa_terrarium0-11_v2.json",
-      "tiles": [
-        "https://global.israelhikingmap.workers.dev/jaxa_terrarium0-11_v2/{z}/{x}/{y}.webp"
-      ],
+      "url": "https://mapeak.com/vector/data/raster-dem.json",
+      "tiles": ["https://mapeak.com/vector/data/raster-dem/{z}/{x}/{y}.webp"],
       "minzoom": 7,
       "maxzoom": 11,
       "tileSize": 512,
@@ -34,10 +32,8 @@
     },
     "Contour": {
       "type": "vector",
-      "url": "https://global.israelhikingmap.workers.dev/JAXA_AW3D30_2024_contour_z5-Z12_vector.json",
-      "tiles": [
-        "https://global.israelhikingmap.workers.dev/JAXA_AW3D30_2024_contour_z5-Z12_vector/{z}/{x}/{y}.mvt"
-      ],
+      "url": "https://mapeak.com/vector/data/contour.json",
+      "tiles": ["https://mapeak.com/vector/data/contour/{z}/{x}/{y}.mvt"],
       "minzoom": 7,
       "maxzoom": 12,
       "attribution": "<a href=https://earth.jaxa.jp/en/data/policy/>AW3D30 (JAXA)</a>"
@@ -54,7 +50,7 @@
     {
       "id": "area-residential",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landuse",
       "filter": [
         "in",
@@ -73,7 +69,7 @@
     {
       "id": "area-landcover-low",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landcover",
       "filter": [
         "all",
@@ -119,7 +115,7 @@
           "match",
           ["get", "class"],
           "ice",
-          "gray",
+          "lightgray",
           "transparent"
         ]
       }
@@ -127,7 +123,7 @@
     {
       "id": "area-AB",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "filter": ["in", "name:en", "Area A", "Area B", "Area H1"],
       "paint": {"fill-pattern": "orange_nesw_pattern", "fill-opacity": 0.3}
@@ -135,7 +131,7 @@
     {
       "id": "area-A",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "filter": ["in", "name:en", "Area A", "Area H1"],
       "paint": {"fill-pattern": "orange_nwse_pattern", "fill-opacity": 0.3}
@@ -143,7 +139,7 @@
     {
       "id": "area-cemetery",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landuse",
       "filter": ["==", "class", "cemetery"],
       "paint": {"fill-color": "#CCCCCC"}
@@ -151,15 +147,24 @@
     {
       "id": "area-quarry",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landcover",
       "filter": ["==", "subclass", "quarry"],
       "paint": {"fill-color": "#BFBFBF"}
     },
     {
+      "id": "Terrain",
+      "type": "hillshade",
+      "source": "DEM",
+      "paint": {
+        "hillshade-exaggeration": {"stops": [[6, 0], [15, 0.33]]},
+        "hillshade-method": "igor"
+      }
+    },
+    {
       "id": "area-military",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landuse",
       "filter": ["==", "class", "military"],
       "paint": {
@@ -191,22 +196,14 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        [
-          "case",
-          [">=", ["zoom"], 13],
-          ["==", 0, ["%", ["var", "ele"], 10]],
-          ["==", ["zoom"], 12],
-          ["==", 0, ["%", ["var", "ele"], 50]],
-          ["==", ["zoom"], 11],
-          ["==", 0, ["%", ["var", "ele"], 100]],
-          ["==", ["zoom"], 10],
-          ["==", 0, ["%", ["var", "ele"], 200]],
-          ["==", ["zoom"], 9],
-          ["==", 0, ["%", ["var", "ele"], 500]],
-          false
-        ]
+        ["==", 0, ["%", ["var", "ele"], 10]],
       ],
-      "paint": {"line-color": "white", "line-width": 2, "line-blur": 2}
+      "paint": {
+        "line-color": "white",
+        "line-width": 2,
+        "line-blur": 2,
+        "line-opacity": 0.5
+      }
     },
     {
       "id": "contour-major-casing",
@@ -218,22 +215,14 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        [
-          "case",
-          [">=", ["zoom"], 13],
-          ["==", 0, ["%", ["var", "ele"], 50]],
-          ["==", ["zoom"], 12],
-          ["==", 0, ["%", ["var", "ele"], 250]],
-          ["==", ["zoom"], 11],
-          ["==", 0, ["%", ["var", "ele"], 500]],
-          ["==", ["zoom"], 10],
-          ["==", 0, ["%", ["var", "ele"], 1000]],
-          ["==", ["zoom"], 9],
-          ["==", 0, ["%", ["var", "ele"], 2500]],
-          false
-        ]
+        ["==", 0, ["%", ["var", "ele"], 50]],
       ],
-      "paint": {"line-color": "white", "line-width": 3, "line-blur": 2}
+      "paint": {
+        "line-color": "white",
+        "line-width": 3,
+        "line-blur": 2,
+        "line-opacity": 0.5
+      }
     },
     {
       "id": "contour-minor",
@@ -245,22 +234,13 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        [
-          "case",
-          [">=", ["zoom"], 13],
-          ["==", 0, ["%", ["var", "ele"], 10]],
-          ["==", ["zoom"], 12],
-          ["==", 0, ["%", ["var", "ele"], 50]],
-          ["==", ["zoom"], 11],
-          ["==", 0, ["%", ["var", "ele"], 100]],
-          ["==", ["zoom"], 10],
-          ["==", 0, ["%", ["var", "ele"], 200]],
-          ["<=", ["zoom"], 9],
-          ["==", 0, ["%", ["var", "ele"], 500]],
-          false
-        ]
+        ["==", 0, ["%", ["var", "ele"], 10]],
       ],
-      "paint": {"line-color": "rgb(161, 127, 86)", "line-width": 1}
+      "paint": {
+        "line-color": "rgb(161, 127, 86)",
+        "line-width": 1,
+        "line-opacity": {"stops": [[10, 0.15], [13, 0.5]]}
+      }
     },
     {
       "id": "contour-major",
@@ -272,27 +252,18 @@
         "let",
         "ele",
         ["to-number", ["get", "ele"]],
-        [
-          "case",
-          [">=", ["zoom"], 13],
-          ["==", 0, ["%", ["var", "ele"], 50]],
-          ["==", ["zoom"], 12],
-          ["==", 0, ["%", ["var", "ele"], 250]],
-          ["==", ["zoom"], 11],
-          ["==", 0, ["%", ["var", "ele"], 500]],
-          ["==", ["zoom"], 10],
-          ["==", 0, ["%", ["var", "ele"], 1000]],
-          ["==", ["zoom"], 9],
-          ["==", 0, ["%", ["var", "ele"], 2500]],
-          false
-        ]
+        ["==", 0, ["%", ["var", "ele"], 50]],
       ],
-      "paint": {"line-color": "rgb(161, 127, 86)", "line-width": 2}
+      "paint": {
+        "line-color": "rgb(161, 127, 86)",
+        "line-width": 2,
+        "line-opacity": {"stops": [[10, 0.1], [13, 0.5]]}
+      }
     },
     {
       "id": "water-area",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "water",
       "filter": ["!=", "intermittent", 1],
       "paint": {
@@ -310,7 +281,7 @@
     {
       "id": "water-area-intermittent",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "water",
       "filter": ["==", "intermittent", 1],
       "paint": {
@@ -321,7 +292,7 @@
     {
       "id": "water-area-wetland",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landcover",
       "filter": ["==", "class", "wetland"],
       "paint": {
@@ -332,7 +303,7 @@
     {
       "id": "area-minefield",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "minefield",
       "filter": ["all"],
       "paint": {
@@ -345,7 +316,7 @@
     {
       "id": "area-pier",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "filter": ["all", ["==", "class", "pier"], ["==", "$type", "Polygon"]],
       "paint": {"fill-color": "#FAF7E1"}
@@ -353,7 +324,7 @@
     {
       "id": "water-area-breakwater",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landuse",
       "filter": ["==", "class", "breakwater"],
       "paint": {"fill-color": "rgb(250, 247, 225)"}
@@ -361,7 +332,7 @@
     {
       "id": "layer-1-box-wayerway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "waterway",
       "minzoom": 10,
       "filter": ["all", ["==", "brunnel", "tunnel"]],
@@ -377,7 +348,7 @@
     {
       "id": "layer-1-casing-waterway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "waterway",
       "minzoom": 10,
       "filter": ["all", ["==", "brunnel", "tunnel"]],
@@ -390,7 +361,7 @@
     {
       "id": "layer-1-box-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -408,7 +379,7 @@
     {
       "id": "layer-1-box-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -425,13 +396,13 @@
     {
       "id": "layer-1-box-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "path", "cycleway", "footway"]
+        ["in", "hike_class", "path", "cycleway", "footway"]
       ],
       "paint": {
         "line-color": "black",
@@ -442,13 +413,13 @@
     {
       "id": "layer-1-box-track+minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "track", "minor"]
+        ["in", "hike_class", "track", "minor"]
       ],
       "paint": {
         "line-color": "black",
@@ -459,7 +430,7 @@
     {
       "id": "layer-1-casing-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -474,7 +445,7 @@
     {
       "id": "layer-1-casing-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -487,13 +458,13 @@
     {
       "id": "layer-1-casing-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "path", "cycleway", "footway"]
+        ["in", "hike_class", "path", "cycleway", "footway"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -504,13 +475,13 @@
     {
       "id": "layer-1-casing-track",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -527,13 +498,13 @@
     {
       "id": "layer-1-casing-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "minor", "unclassified", "service"]
+        ["in", "hike_class", "minor", "unclassified", "service"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
@@ -547,13 +518,13 @@
     {
       "id": "layer-1-casing-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "tertiary"]
+        ["==", "hike_class", "tertiary"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
@@ -567,13 +538,13 @@
     {
       "id": "layer-1-casing-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "secondary"]
+        ["==", "hike_class", "secondary"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
@@ -587,13 +558,13 @@
     {
       "id": "layer-1-casing-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "primary"]
+        ["==", "hike_class", "primary"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
@@ -607,13 +578,13 @@
     {
       "id": "layer-1-casing-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 7,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "trunk"]
+        ["==", "hike_class", "trunk"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
@@ -627,13 +598,13 @@
     {
       "id": "layer-1-casing-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 6,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "motorway"]
+        ["==", "hike_class", "motorway"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
@@ -647,13 +618,13 @@
     {
       "id": "layer-1-rail-casing",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "rail", "transit"]
+        ["in", "hike_class", "rail", "transit"]
       ],
       "layout": {"line-join": "round"},
       "paint": {
@@ -664,13 +635,13 @@
     {
       "id": "layer-1-rail-dash-tunnel",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "rail", "transit"]
+        ["in", "hike_class", "rail", "transit"]
       ],
       "paint": {
         "line-dasharray": [6, 1],
@@ -681,7 +652,7 @@
     {
       "id": "layer-1-path-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -699,7 +670,7 @@
     {
       "id": "layer-1-path-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -716,13 +687,13 @@
     {
       "id": "layer-1-path-footway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "footway", "pedestrian"]
+        ["in", "hike_class", "footway", "pedestrian"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -734,13 +705,13 @@
     {
       "id": "layer-1-path-cycleway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "cycleway"]
+        ["==", "hike_class", "cycleway"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -752,13 +723,13 @@
     {
       "id": "layer-1-path-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "path"],
+        ["==", "hike_class", "path"],
         ["!=", "subclass", "steps"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -771,14 +742,14 @@
     {
       "id": "layer-1-track-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "maxzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!has", "colour"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -787,14 +758,14 @@
     {
       "id": "layer-1-track-right-grade5",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "tracktype", "grade5"],
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -807,14 +778,14 @@
     {
       "id": "layer-1-track-left-grade5",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "tracktype", "grade5"],
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -827,14 +798,14 @@
     {
       "id": "layer-1-track-right-grade4",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "tracktype", "grade4"],
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -847,14 +818,14 @@
     {
       "id": "layer-1-track-left-grade4",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "tracktype", "grade4"],
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -867,13 +838,13 @@
     {
       "id": "layer-1-track-right",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "tracktype", "grade1", "grade2", "grade4", "grade5"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -887,13 +858,13 @@
     {
       "id": "layer-1-track-left",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "tracktype", "grade1", "grade2", "grade4", "grade5"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -907,13 +878,13 @@
     {
       "id": "layer-1-track-right-grade1-2",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["in", "tracktype", "grade1", "grade2"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -926,13 +897,13 @@
     {
       "id": "layer-1-track-left-grade1-2",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["in", "tracktype", "grade1", "grade2"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -945,13 +916,13 @@
     {
       "id": "layer-1-road-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["in", "ihm_class", "minor", "unclassified", "service"]
+        ["in", "hike_class", "minor", "unclassified", "service"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -966,13 +937,13 @@
     {
       "id": "layer-1-road-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "tertiary"]
+        ["==", "hike_class", "tertiary"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -984,13 +955,13 @@
     {
       "id": "layer-1-road-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "secondary"]
+        ["==", "hike_class", "secondary"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -1005,13 +976,13 @@
     {
       "id": "layer-1-road-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "primary"]
+        ["==", "hike_class", "primary"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -1026,13 +997,13 @@
     {
       "id": "layer-1-road-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 5,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "trunk"]
+        ["==", "hike_class", "trunk"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -1047,13 +1018,13 @@
     {
       "id": "layer-1-road-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 5,
       "filter": [
         "all",
         ["==", "brunnel", "tunnel"],
-        ["==", "ihm_class", "motorway"]
+        ["==", "hike_class", "motorway"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -1068,7 +1039,7 @@
     {
       "id": "casing-pier",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "filter": ["all", ["==", "class", "pier"]],
       "paint": {
@@ -1079,7 +1050,7 @@
     {
       "id": "casing-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -1094,7 +1065,7 @@
     {
       "id": "casing-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -1110,12 +1081,12 @@
     {
       "id": "casing-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
-        ["in", "ihm_class", "path", "cycleway", "footway"],
+        ["in", "hike_class", "path", "cycleway", "footway"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1127,12 +1098,12 @@
     {
       "id": "casing-track",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1150,7 +1121,7 @@
     {
       "id": "water-line-intermittent",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "waterway",
       "minzoom": 9,
       "filter": ["all", ["==", "intermittent", 1], ["!=", "class", "ditch"]],
@@ -1163,7 +1134,7 @@
     {
       "id": "water-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "waterway",
       "minzoom": 9,
       "filter": ["all", ["!=", "intermittent", 1], ["!=", "class", "ditch"]],
@@ -1175,7 +1146,7 @@
     {
       "id": "boundary-area-AB",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "filter": ["in", "name:en", "Area A", "Area B", "Area H1"],
       "paint": {"line-color": "orange", "line-opacity": 0.4}
@@ -1183,7 +1154,7 @@
     {
       "id": "boundary-military",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landuse",
       "filter": ["==", "class", "military"],
       "layout": {},
@@ -1192,7 +1163,7 @@
     {
       "id": "boundary-minefield",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "minefield",
       "minzoom": 11,
       "filter": ["all"],
@@ -1205,7 +1176,7 @@
     {
       "id": "boundary-park-casing",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "park",
       "minzoom": 6,
       "layout": {"line-join": "round"},
@@ -1220,7 +1191,7 @@
     {
       "id": "boundary-park",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "park",
       "minzoom": 5,
       "paint": {
@@ -1232,7 +1203,7 @@
     {
       "id": "boundary-country-dash",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "minzoom": 8,
       "filter": [
@@ -1252,7 +1223,7 @@
     {
       "id": "boundary-country-bar",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "minzoom": 8,
       "filter": [
@@ -1272,7 +1243,7 @@
     {
       "id": "boundary-country-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "maxzoom": 8,
       "filter": [
@@ -1292,7 +1263,7 @@
     {
       "id": "boundary-country-Green_line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "filter": [
         "all",
@@ -1309,7 +1280,7 @@
     {
       "id": "boundary-country-Golan",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_boundary",
       "filter": [
         "all",
@@ -1321,7 +1292,7 @@
     {
       "id": "aeroway-helipad",
       "type": "fill",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "aeroway",
       "minzoom": 15,
       "filter": ["==", "class", "helipad"],
@@ -1333,7 +1304,7 @@
     {
       "id": "aeroway-taxiway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "aeroway",
       "minzoom": 13,
       "filter": ["==", "class", "taxiway"],
@@ -1345,7 +1316,7 @@
     {
       "id": "aeroway-runway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "aeroway",
       "filter": ["==", "class", "runway"],
       "paint": {
@@ -1356,21 +1327,21 @@
     {
       "id": "barrier-cliff",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
-      "minzoom": 9,
+      "minzoom": 10,
       "filter": ["all", ["in", "class", "cliff", "earth_bank", "arete"]],
       "paint": {"line-width": 1.5, "line-color": "#977C73", "line-opacity": 0.8}
     },
     {
       "id": "casing-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
-        ["in", "ihm_class", "minor", "unclassified", "service"],
+        ["in", "hike_class", "minor", "unclassified", "service"],
         ["!in", "brunnel", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1385,12 +1356,12 @@
     {
       "id": "casing-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
       "filter": [
         "all",
-        ["==", "ihm_class", "tertiary"],
+        ["==", "hike_class", "tertiary"],
         ["!in", "brunnel", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1405,12 +1376,12 @@
     {
       "id": "casing-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 8,
       "filter": [
         "all",
-        ["==", "ihm_class", "secondary"],
+        ["==", "hike_class", "secondary"],
         ["!in", "brunnel", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1425,12 +1396,12 @@
     {
       "id": "casing-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
       "filter": [
         "all",
-        ["==", "ihm_class", "primary"],
+        ["==", "hike_class", "primary"],
         ["!in", "brunnel", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1442,12 +1413,12 @@
     {
       "id": "casing-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 7,
       "filter": [
         "all",
-        ["==", "ihm_class", "trunk"],
+        ["==", "hike_class", "trunk"],
         ["!in", "brunnel", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1459,12 +1430,12 @@
     {
       "id": "casing-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 6,
       "filter": [
         "all",
-        ["==", "ihm_class", "motorway"],
+        ["==", "hike_class", "motorway"],
         ["!in", "brunnel", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1476,7 +1447,7 @@
     {
       "id": "trail-line-path",
       "type": "line",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail",
       "minzoom": 12,
       "maxzoom": 13,
@@ -1492,7 +1463,7 @@
     {
       "id": "trail-colours-bg",
       "type": "line",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail",
       "minzoom": 12,
       "filter": ["all", [">", "num_colours", 0]],
@@ -1506,7 +1477,7 @@
     {
       "id": "trail-colour5",
       "type": "line",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail",
       "minzoom": 12,
       "filter": ["all", ["has", "hike_colour5"]],
@@ -1520,7 +1491,7 @@
     {
       "id": "trail-colour4",
       "type": "line",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail",
       "minzoom": 12,
       "filter": ["all", ["has", "hike_colour4"]],
@@ -1534,7 +1505,7 @@
     {
       "id": "trail-colour3",
       "type": "line",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail",
       "minzoom": 12,
       "filter": ["all", ["has", "hike_colour3"]],
@@ -1548,7 +1519,7 @@
     {
       "id": "trail-colour2",
       "type": "line",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail",
       "minzoom": 12,
       "filter": ["all", ["has", "hike_colour2"]],
@@ -1562,7 +1533,7 @@
     {
       "id": "trail-colour1",
       "type": "line",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail",
       "minzoom": 12,
       "filter": ["all", ["has", "hike_colour1"]],
@@ -1576,12 +1547,12 @@
     {
       "id": "rail-casing",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
-        ["in", "ihm_class", "rail", "transit"],
+        ["in", "hike_class", "rail", "transit"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1593,12 +1564,12 @@
     {
       "id": "rail-dash",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
-        ["in", "ihm_class", "rail", "transit"],
+        ["in", "hike_class", "rail", "transit"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "paint": {
@@ -1610,7 +1581,7 @@
     {
       "id": "path-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -1628,7 +1599,7 @@
     {
       "id": "path-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -1645,12 +1616,12 @@
     {
       "id": "path-footway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
-        ["in", "ihm_class", "footway", "pedestrian"],
+        ["in", "hike_class", "footway", "pedestrian"],
         ["!in", "brunnel", "bridge", "tunnel"],
         ["==", "$type", "LineString"]
       ],
@@ -1664,12 +1635,12 @@
     {
       "id": "path-cycleway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
-        ["==", "ihm_class", "cycleway"],
+        ["==", "hike_class", "cycleway"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1682,12 +1653,12 @@
     {
       "id": "path-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
-        ["==", "ihm_class", "path"],
+        ["==", "hike_class", "path"],
         ["!=", "subclass", "steps"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
@@ -1699,30 +1670,48 @@
       }
     },
     {
-      "id": "track-line",
+      "id": "path-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
-      "minzoom": 11,
-      "maxzoom": 12,
-      "filter": ["all", ["==", "ihm_class", "track"]],
+      "minzoom": 10,
+      "maxzoom": 13,
+      "filter": [
+        "all",
+        ["==", "hike_class", "path"],
+        ["!in", "brunnel", "tunnel"]
+      ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
-        "line-color": ["to-color", ["get", "colour"], "#AA8166"],
-        "line-width": 2,
-        "line-opacity": 0.5
+        "line-dasharray": [0.5, 2.5],
+        "line-width": 1.5,
+        "line-color": ["to-color", ["get", "colour"], "#AA8166"]
+      }
+    },
+    {
+      "id": "track-line",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "transportation",
+      "minzoom": 10,
+      "maxzoom": 12,
+      "filter": ["all", ["==", "hike_class", "track"]],
+      "layout": {"line-cap": "round", "line-join": "round"},
+      "paint": {
+        "line-width": 1.3,
+        "line-color": ["to-color", ["get", "colour"], "#AA8166"]
       }
     },
     {
       "id": "track-right-grade5",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "tracktype", "grade5"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -1736,13 +1725,13 @@
     {
       "id": "track-left-grade5",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "tracktype", "grade5"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -1756,13 +1745,13 @@
     {
       "id": "track-right-grade4",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "tracktype", "grade4"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -1776,13 +1765,13 @@
     {
       "id": "track-left-grade4",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "tracktype", "grade4"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -1796,12 +1785,12 @@
     {
       "id": "track-right",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"],
         ["!in", "tracktype", "grade1", "grade2", "grade4", "grade5"]
       ],
@@ -1816,12 +1805,12 @@
     {
       "id": "track-left",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"],
         ["!in", "tracktype", "grade1", "grade2", "grade4", "grade5"]
       ],
@@ -1836,13 +1825,13 @@
     {
       "id": "track-right-grade1-2",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["in", "tracktype", "grade1", "grade2"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -1855,13 +1844,13 @@
     {
       "id": "track-left-grade1-2",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["in", "tracktype", "grade1", "grade2"],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -1872,14 +1861,28 @@
       }
     },
     {
+      "id": "road-minor-line",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "transportation",
+      "maxzoom": 11,
+      "filter": [
+        "all",
+        ["in", "hike_class", "minor", "unclassified", "service"],
+        ["!in", "brunnel", "tunnel"]
+      ],
+      "layout": {"line-cap": "round", "line-join": "round"},
+      "paint": {"line-color": "rgb(255, 255, 255)", "line-width": 1}
+    },
+    {
       "id": "road-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
-        ["in", "ihm_class", "minor", "unclassified", "service"],
+        ["in", "hike_class", "minor", "unclassified", "service"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1894,12 +1897,12 @@
     {
       "id": "road-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
-      "minzoom": 10,
+      "minzoom": 8,
       "filter": [
         "all",
-        ["==", "ihm_class", "tertiary"],
+        ["==", "hike_class", "tertiary"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1914,12 +1917,12 @@
     {
       "id": "road-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
-      "minzoom": 8,
+      "minzoom": 6,
       "filter": [
         "all",
-        ["==", "ihm_class", "secondary"],
+        ["==", "hike_class", "secondary"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1934,12 +1937,12 @@
     {
       "id": "road-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 4,
       "filter": [
         "all",
-        ["==", "ihm_class", "primary"],
+        ["==", "hike_class", "primary"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1951,12 +1954,12 @@
     {
       "id": "road-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 3,
       "filter": [
         "all",
-        ["==", "ihm_class", "trunk"],
+        ["==", "hike_class", "trunk"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1968,12 +1971,12 @@
     {
       "id": "road-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 3,
       "filter": [
         "all",
-        ["==", "ihm_class", "motorway"],
+        ["==", "hike_class", "motorway"],
         ["!in", "brunnel", "bridge", "tunnel"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -1985,7 +1988,7 @@
     {
       "id": "layer1-box-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -1995,7 +1998,7 @@
     {
       "id": "layer1-box-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": ["all", ["==", "layer", 1], ["==", "subclass", "steps"]],
@@ -2004,13 +2007,13 @@
     {
       "id": "layer1-box-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "path", "cycleway", "footway"]
+        ["in", "hike_class", "path", "cycleway", "footway"]
       ],
       "paint": {
         "line-color": "black",
@@ -2020,10 +2023,10 @@
     {
       "id": "layer1-box-track",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "track"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "track"]],
       "paint": {
         "line-color": "black",
         "line-width": {"base": 2, "stops": [[13, 7.5], [16, 12], [22, 48]]}
@@ -2032,7 +2035,7 @@
     {
       "id": "layer1-box-paved",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
@@ -2040,7 +2043,7 @@
         ["==", "brunnel", "bridge"],
         [
           "in",
-          "ihm_class",
+          "hike_class",
           "secondary",
           "tertiary",
           "minor",
@@ -2057,13 +2060,13 @@
     {
       "id": "layer1-box-highways",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "motorway", "trunk", "primary"]
+        ["in", "hike_class", "motorway", "trunk", "primary"]
       ],
       "paint": {
         "line-color": "black",
@@ -2073,7 +2076,7 @@
     {
       "id": "layer1-casing-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -2084,7 +2087,7 @@
     {
       "id": "layer1-casing-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": ["all", ["==", "layer", 1], ["==", "subclass", "steps"]],
@@ -2096,13 +2099,13 @@
     {
       "id": "layer1-casing-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "path", "cycleway", "footway"]
+        ["in", "hike_class", "path", "cycleway", "footway"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -2113,10 +2116,10 @@
     {
       "id": "layer1-casing-track",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "track"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "track"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-width": {"base": 2, "stops": [[13, 5], [16, 8], [22, 32]]},
@@ -2132,13 +2135,13 @@
     {
       "id": "layer1-casing-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "minor", "unclassified", "service"]
+        ["in", "hike_class", "minor", "unclassified", "service"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
@@ -2152,10 +2155,10 @@
     {
       "id": "layer1-casing-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "tertiary"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "tertiary"]],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
         "line-color": ["to-color", ["get", "colour"], "#808080"],
@@ -2168,10 +2171,10 @@
     {
       "id": "layer1-casing-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "secondary"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "secondary"]],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
         "line-color": ["to-color", ["get", "colour"], "#808080"],
@@ -2184,10 +2187,10 @@
     {
       "id": "layer1-casing-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "primary"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "primary"]],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
         "line-color": "#808080",
@@ -2200,10 +2203,10 @@
     {
       "id": "layer1-casing-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 7,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "trunk"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "trunk"]],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
         "line-color": "#808080",
@@ -2216,10 +2219,10 @@
     {
       "id": "layer1-casing-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 6,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "motorway"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "motorway"]],
       "layout": {"line-cap": "butt", "line-join": "round"},
       "paint": {
         "line-color": "#808080",
@@ -2232,13 +2235,13 @@
     {
       "id": "layer1-box-rail",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "rail", "transit"]
+        ["in", "hike_class", "rail", "transit"]
       ],
       "paint": {
         "line-width": {"base": 2, "stops": [[13, 8], [16, 16], [22, 64]]},
@@ -2248,13 +2251,13 @@
     {
       "id": "layer1-rail-casing",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "rail", "transit"]
+        ["in", "hike_class", "rail", "transit"]
       ],
       "layout": {"line-join": "round"},
       "paint": {
@@ -2265,13 +2268,13 @@
     {
       "id": "layer1-rail-dash",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "rail", "transit"]
+        ["in", "hike_class", "rail", "transit"]
       ],
       "paint": {
         "line-dasharray": [6, 6],
@@ -2282,7 +2285,7 @@
     {
       "id": "layer1-path-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -2296,7 +2299,7 @@
     {
       "id": "layer1-path-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": ["all", ["==", "layer", 1], ["==", "subclass", "steps"]],
@@ -2309,13 +2312,13 @@
     {
       "id": "layer1-path-footway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "footway", "pedestrian"]
+        ["in", "hike_class", "footway", "pedestrian"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -2327,10 +2330,10 @@
     {
       "id": "layer1-path-cycleway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "cycleway"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "cycleway"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-dasharray": [4, 2, 0.5, 2],
@@ -2341,13 +2344,13 @@
     {
       "id": "layer1-path-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["==", "ihm_class", "path"],
+        ["==", "hike_class", "path"],
         ["!=", "subclass", "steps"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -2360,14 +2363,14 @@
     {
       "id": "layer1-track-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "maxzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!has", "colour"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -2376,14 +2379,14 @@
     {
       "id": "layer1-track-right-grade5",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
         ["==", "tracktype", "grade5"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -2396,14 +2399,14 @@
     {
       "id": "layer1-track-left-grade5",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
         ["==", "tracktype", "grade5"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -2416,14 +2419,14 @@
     {
       "id": "layer1-track-right-grade4",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
         ["==", "tracktype", "grade4"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -2436,14 +2439,14 @@
     {
       "id": "layer1-track-left-grade4",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
         ["==", "tracktype", "grade4"],
-        ["==", "ihm_class", "track"]
+        ["==", "hike_class", "track"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
       "paint": {
@@ -2456,13 +2459,13 @@
     {
       "id": "layer1-track-right",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "tracktype", "grade1", "grade2", "grade4", "grade5"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -2476,13 +2479,13 @@
     {
       "id": "layer1-track-left",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["!in", "tracktype", "grade1", "grade2", "grade4", "grade5"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -2496,13 +2499,13 @@
     {
       "id": "layer1-track-right-grade1-2",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["in", "tracktype", "grade1", "grade2"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -2515,13 +2518,13 @@
     {
       "id": "layer1-track-left-grade1-2",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["==", "ihm_class", "track"],
+        ["==", "hike_class", "track"],
         ["in", "tracktype", "grade1", "grade2"]
       ],
       "layout": {"line-cap": "round", "line-join": "miter"},
@@ -2534,13 +2537,13 @@
     {
       "id": "layer1-road-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["in", "ihm_class", "minor", "unclassified", "service"]
+        ["in", "hike_class", "minor", "unclassified", "service"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
@@ -2554,10 +2557,10 @@
     {
       "id": "layer1-road-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "tertiary"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "tertiary"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-color": "rgb(255, 230, 107)",
@@ -2567,10 +2570,10 @@
     {
       "id": "layer1-road-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "secondary"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "secondary"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-color": "#303030",
@@ -2583,10 +2586,10 @@
     {
       "id": "layer1-road-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "primary"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "primary"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-color": "green",
@@ -2599,10 +2602,10 @@
     {
       "id": "layer1-road-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 5,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "trunk"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "trunk"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-color": "red",
@@ -2615,10 +2618,10 @@
     {
       "id": "layer1-road-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 5,
-      "filter": ["all", ["==", "layer", 1], ["==", "ihm_class", "motorway"]],
+      "filter": ["all", ["==", "layer", 1], ["==", "hike_class", "motorway"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-color": "blue",
@@ -2631,7 +2634,7 @@
     {
       "id": "layer2-box-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -2646,7 +2649,7 @@
     {
       "id": "layer2-box-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -2660,13 +2663,13 @@
     {
       "id": "layer2-box-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "path", "cycleway", "footway"],
+        ["in", "hike_class", "path", "cycleway", "footway"],
         ["==", "brunnel", "bridge"]
       ],
       "paint": {
@@ -2677,7 +2680,7 @@
     {
       "id": "layer2-box-paved",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
@@ -2685,7 +2688,7 @@
         ["==", "layer", 2],
         [
           "in",
-          "ihm_class",
+          "hike_class",
           "motorway",
           "trunk",
           "primary",
@@ -2705,7 +2708,7 @@
     {
       "id": "layer2-casing-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -2721,7 +2724,7 @@
     {
       "id": "layer2-casing-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -2738,13 +2741,13 @@
     {
       "id": "layer2-casing-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "path", "cycleway", "footway"],
+        ["in", "hike_class", "path", "cycleway", "footway"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -2756,13 +2759,13 @@
     {
       "id": "layer2-casing-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "minor", "unclassified", "service"],
+        ["in", "hike_class", "minor", "unclassified", "service"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -2777,13 +2780,13 @@
     {
       "id": "layer2-casing-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "tertiary"],
+        ["==", "hike_class", "tertiary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -2798,13 +2801,13 @@
     {
       "id": "layer2-casing-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "secondary"],
+        ["==", "hike_class", "secondary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -2819,13 +2822,13 @@
     {
       "id": "layer2-casing-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "primary"],
+        ["==", "hike_class", "primary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -2840,13 +2843,13 @@
     {
       "id": "layer2-casing-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 7,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "trunk"],
+        ["==", "hike_class", "trunk"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -2861,13 +2864,13 @@
     {
       "id": "layer2-casing-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 6,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "motorway"],
+        ["==", "hike_class", "motorway"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -2882,13 +2885,13 @@
     {
       "id": "layer2-box-rail",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "rail", "transit"],
+        ["in", "hike_class", "rail", "transit"],
         ["==", "brunnel", "bridge"]
       ],
       "paint": {
@@ -2899,13 +2902,13 @@
     {
       "id": "layer2-rail-casing",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "rail", "transit"],
+        ["in", "hike_class", "rail", "transit"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-join": "round"},
@@ -2917,13 +2920,13 @@
     {
       "id": "layer2-rail-dash",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "rail", "transit"],
+        ["in", "hike_class", "rail", "transit"],
         ["==", "brunnel", "bridge"]
       ],
       "paint": {
@@ -2935,7 +2938,7 @@
     {
       "id": "layer2-path-steps-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "maxzoom": 14,
@@ -2954,7 +2957,7 @@
     {
       "id": "layer2-path-steps",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 14,
       "filter": [
@@ -2972,13 +2975,13 @@
     {
       "id": "layer2-path-footway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "footway", "pedestrian"],
+        ["in", "hike_class", "footway", "pedestrian"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -2991,13 +2994,13 @@
     {
       "id": "layer2-path-cycleway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "cycleway"],
+        ["==", "hike_class", "cycleway"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3010,13 +3013,13 @@
     {
       "id": "layer2-path-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "path"],
+        ["==", "hike_class", "path"],
         ["!=", "subclass", "steps"],
         ["==", "brunnel", "bridge"]
       ],
@@ -3030,13 +3033,13 @@
     {
       "id": "layer2-road-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["in", "ihm_class", "minor", "unclassified", "service"],
+        ["in", "hike_class", "minor", "unclassified", "service"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3051,13 +3054,13 @@
     {
       "id": "layer2-road-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "tertiary"],
+        ["==", "hike_class", "tertiary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3069,13 +3072,13 @@
     {
       "id": "layer2-road-secondary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "secondary"],
+        ["==", "hike_class", "secondary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3090,13 +3093,13 @@
     {
       "id": "layer2-road-primary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 10,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "primary"],
+        ["==", "hike_class", "primary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3111,13 +3114,13 @@
     {
       "id": "layer2-road-trunk",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 5,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "trunk"],
+        ["==", "hike_class", "trunk"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3132,13 +3135,13 @@
     {
       "id": "layer2-road-motorway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 5,
       "filter": [
         "all",
         ["==", "layer", 2],
-        ["==", "ihm_class", "motorway"],
+        ["==", "hike_class", "motorway"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3153,13 +3156,13 @@
     {
       "id": "layer3-casing-path",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 3],
-        ["==", "ihm_class", "path"],
+        ["==", "hike_class", "path"],
         ["!=", "subclass", "steps"],
         ["==", "brunnel", "bridge"]
       ],
@@ -3172,13 +3175,13 @@
     {
       "id": "layer3-casing-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 3],
-        ["in", "ihm_class", "minor", "unclassified", "service"],
+        ["in", "hike_class", "minor", "unclassified", "service"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -3193,13 +3196,13 @@
     {
       "id": "layer3-casing-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": [
         "all",
         ["==", "layer", 3],
-        ["==", "ihm_class", "tertiary"],
+        ["==", "hike_class", "tertiary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "butt", "line-join": "round"},
@@ -3214,13 +3217,13 @@
     {
       "id": "layer3-path-footway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 3],
-        ["in", "ihm_class", "footway", "pedestrian"],
+        ["in", "hike_class", "footway", "pedestrian"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3233,13 +3236,13 @@
     {
       "id": "layer3-road-minor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 13,
       "filter": [
         "all",
         ["==", "layer", 3],
-        ["in", "ihm_class", "minor", "unclassified", "service"],
+        ["in", "hike_class", "minor", "unclassified", "service"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3254,13 +3257,13 @@
     {
       "id": "layer3-road-tertiary",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "layer", 3],
-        ["==", "ihm_class", "tertiary"],
+        ["==", "hike_class", "tertiary"],
         ["==", "brunnel", "bridge"]
       ],
       "layout": {"line-cap": "round", "line-join": "round"},
@@ -3272,7 +3275,7 @@
     {
       "id": "aerialway",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "filter": ["all", ["in", "class", "aerialway"]],
@@ -3289,13 +3292,13 @@
     {
       "id": "goods_conveyor-bridge",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 12,
       "filter": [
         "all",
         ["==", "layer", 1],
-        ["==", "ihm_class", "goods_conveyor"]
+        ["==", "hike_class", "goods_conveyor"]
       ],
       "paint": {
         "line-color": "black",
@@ -3305,11 +3308,11 @@
     {
       "id": "goods_conveyor",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "maxzoom": 24,
-      "filter": ["any", ["==", "ihm_class", "goods_conveyor"]],
+      "filter": ["any", ["==", "hike_class", "goods_conveyor"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-color": "#666",
@@ -3319,11 +3322,11 @@
     {
       "id": "goods_conveyor-dash",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation",
       "minzoom": 11,
       "maxzoom": 24,
-      "filter": ["any", ["==", "ihm_class", "goods_conveyor"]],
+      "filter": ["any", ["==", "hike_class", "goods_conveyor"]],
       "layout": {"line-cap": "round", "line-join": "round"},
       "paint": {
         "line-color": "white",
@@ -3334,7 +3337,7 @@
     {
       "id": "barrier-power",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landuse",
       "minzoom": 14,
       "filter": ["in", "class", "substation", "sub_station", "plant"],
@@ -3343,7 +3346,7 @@
     {
       "id": "barrier-fence-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
       "minzoom": 11,
       "filter": ["all", ["in", "class", "fence", "yes", "block"]],
@@ -3352,7 +3355,7 @@
     {
       "id": "barrier-wall",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
       "minzoom": 11,
       "filter": ["in", "class", "wall", "city_wall", "dam"],
@@ -3361,7 +3364,7 @@
     {
       "id": "power-line",
       "type": "line",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
       "minzoom": 14,
       "filter": ["in", "class", "line", "minor_line"],
@@ -3369,18 +3372,30 @@
       "paint": {"line-color": "#bbb", "line-width": 1.5}
     },
     {
-      "id": "Terrain",
-      "type": "hillshade",
-      "source": "DEM",
+      "id": "grid-lines-minor",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "itm_grid",
+      "minzoom": 9,
+      "filter": ["all"],
       "paint": {
-        "hillshade-exaggeration": 0.33,
-        "hillshade-highlight-color": "rgba(256,256,256,0)"
+        "line-color": "rgb(127, 127, 127)",
+        "line-width": {"base": 2, "stops": [[8, 0.5], [11, 1]]}
       }
+    },
+    {
+      "id": "grid-lines-major",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "itm_grid",
+      "minzoom": 11,
+      "filter": ["any", [">=", "east_rank", 10], [">=", "north_rank", 10]],
+      "paint": {"line-color": "rgb(127, 127, 127)", "line-width": 2}
     },
     {
       "id": "boundary-minefield-icon",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "minefield",
       "minzoom": 13,
       "layout": {
@@ -3399,7 +3414,7 @@
     {
       "id": "barrier-cliff-arete",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
       "minzoom": 9,
       "filter": ["all", ["in", "class", "arete"]],
@@ -3416,9 +3431,9 @@
     {
       "id": "barrier-cliff-icon",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
-      "minzoom": 9,
+      "minzoom": 10,
       "filter": ["all", ["in", "class", "cliff", "earth_bank", "arete"]],
       "layout": {
         "icon-image": "cliff_pattern",
@@ -3433,7 +3448,7 @@
     {
       "id": "barrier-fence-x",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
       "minzoom": 11,
       "filter": ["==", "class", "fence"],
@@ -3447,30 +3462,9 @@
       "paint": {}
     },
     {
-      "id": "grid-lines-minor",
-      "type": "line",
-      "source": "IHM",
-      "source-layer": "itm_grid",
-      "minzoom": 9,
-      "filter": ["all"],
-      "paint": {
-        "line-color": "rgb(127, 127, 127)",
-        "line-width": {"base": 2, "stops": [[8, 0.5], [11, 1]]}
-      }
-    },
-    {
-      "id": "grid-lines-major",
-      "type": "line",
-      "source": "IHM",
-      "source-layer": "itm_grid",
-      "minzoom": 11,
-      "filter": ["any", [">=", "east_rank", 10], [">=", "north_rank", 10]],
-      "paint": {"line-color": "rgb(127, 127, 127)", "line-width": 2}
-    },
-    {
       "id": "grid-label-east",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "itm_grid",
       "minzoom": 9,
       "filter": [
@@ -3496,7 +3490,7 @@
     {
       "id": "grid-label-north",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "itm_grid",
       "minzoom": 9,
       "filter": [
@@ -3524,7 +3518,7 @@
     {
       "id": "power-tower",
       "type": "circle",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_lines",
       "minzoom": 14,
       "filter": ["==", "class", "tower"],
@@ -3538,7 +3532,7 @@
     {
       "id": "shield-secondary",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 11,
       "filter": ["all", ["==", "class", "secondary"], ["has", "ref"]],
@@ -3562,7 +3556,7 @@
     {
       "id": "shield-primary",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 10,
       "filter": ["all", ["==", "class", "primary"], ["has", "ref"]],
@@ -3586,7 +3580,7 @@
     {
       "id": "shield-trunk",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 6,
       "filter": ["all", ["==", "class", "trunk"], ["has", "ref"]],
@@ -3610,7 +3604,7 @@
     {
       "id": "shield-motorway",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 6,
       "filter": ["all", ["==", "class", "motorway"], ["has", "ref"]],
@@ -3634,7 +3628,7 @@
     {
       "id": "icon-tree",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "tree"],
       "layout": {
@@ -3662,7 +3656,7 @@
     {
       "id": "building",
       "type": "fill-extrusion",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "building",
       "minzoom": 15,
       "filter": ["all"],
@@ -3688,8 +3682,10 @@
         ["to-number", ["get", "ele"]],
         [
           "case",
-          [">=", ["zoom"], 13],
+          [">=", ["zoom"], 14],
           ["==", 0, ["%", ["var", "ele"], 50]],
+          ["==", ["zoom"], 13],
+          ["==", 0, ["%", ["var", "ele"], 100]],
           ["==", ["zoom"], 12],
           ["==", 0, ["%", ["var", "ele"], 250]],
           ["==", ["zoom"], 11],
@@ -3720,7 +3716,7 @@
     {
       "id": "name-building",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "building",
       "minzoom": 16,
       "layout": {
@@ -3743,38 +3739,9 @@
       }
     },
     {
-      "id": "name-water-line_old",
-      "type": "symbol",
-      "source": "IHM",
-      "source-layer": "waterway",
-      "minzoom": 11,
-      "filter": ["!=", "class", "ditch"],
-      "layout": {
-        "text-field": [
-          "coalesce",
-          ["get", "name:he"],
-          ["get", "name:en"],
-          ["get", "name"]
-        ],
-        "symbol-placement": "line",
-        "text-font": ["Noto Sans Condensed Bold"],
-        "text-size": 18,
-        "text-letter-spacing": 0.7,
-        "text-max-angle": 150,
-        "text-keep-upright": true,
-        "symbol-spacing": 500
-      },
-      "paint": {
-        "text-color": "#1E80E2",
-        "text-halo-color": "white",
-        "text-halo-width": 3,
-        "text-halo-blur": 1.5
-      }
-    },
-    {
       "id": "name-water-line",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "waterway_name",
       "minzoom": 11,
       "filter": ["!=", "class", "ditch"],
@@ -3803,7 +3770,7 @@
     {
       "id": "name-minor",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 15,
       "filter": ["in", "class", "minor", "service"],
@@ -3829,7 +3796,7 @@
     {
       "id": "name-path",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "filter": ["==", "class", "path"],
       "layout": {
@@ -3855,7 +3822,7 @@
     {
       "id": "name-track",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "filter": ["==", "class", "track"],
       "layout": {
@@ -3881,7 +3848,7 @@
     {
       "id": "name-tertiary",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 13,
       "filter": ["==", "class", "tertiary"],
@@ -3908,7 +3875,7 @@
     {
       "id": "name-secondary",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 13,
       "filter": ["==", "class", "secondary"],
@@ -3933,7 +3900,7 @@
     {
       "id": "name-primary",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "transportation_name",
       "minzoom": 13,
       "filter": ["==", "class", "primary"],
@@ -3958,7 +3925,7 @@
     {
       "id": "gate-open",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "barrier",
       "filter": ["==", "class", "open_gate"],
       "layout": {
@@ -3971,7 +3938,7 @@
     {
       "id": "icon-quarry",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landcover",
       "minzoom": 13,
       "filter": ["==", "subclass", "quarry"],
@@ -3984,7 +3951,7 @@
     {
       "id": "icon-holy",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": [
         "all",
@@ -4016,7 +3983,7 @@
     {
       "id": "icon-jewish",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": [
         "all",
@@ -4031,7 +3998,7 @@
     {
       "id": "icon-muslim",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": [
         "all",
@@ -4063,7 +4030,7 @@
     {
       "id": "icon-christian",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": [
         "all",
@@ -4096,7 +4063,7 @@
     {
       "id": "icon-rail_station",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 13,
       "filter": ["==", "subclass", "station"],
@@ -4129,7 +4096,7 @@
     {
       "id": "icon-cemerery",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "landuse",
       "minzoom": 15,
       "filter": ["==", "class", "cemetery"],
@@ -4141,7 +4108,7 @@
     {
       "id": "gate-cattle_grid",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "barrier",
       "filter": ["==", "class", "cattle_grid"],
       "layout": {
@@ -4152,49 +4119,9 @@
       }
     },
     {
-      "id": "icon-fuel",
-      "type": "symbol",
-      "source": "IHM",
-      "source-layer": "poi",
-      "filter": ["==", "subclass", "fuel"],
-      "layout": {
-        "icon-image": "gas",
-        "icon-size": {"stops": [[14, 0.5], [20, 0.8]]}
-      }
-    },
-    {
-      "id": "icon-memorial",
-      "type": "symbol",
-      "source": "IHM",
-      "source-layer": "poi",
-      "filter": ["in", "subclass", "memorial", "monument"],
-      "layout": {
-        "icon-image": "monument",
-        "icon-size": {"stops": [[14, 0.6], [20, 0.8]]},
-        "text-field": [
-          "coalesce",
-          ["get", "name:he"],
-          ["get", "name:en"],
-          ["get", "name"]
-        ],
-        "text-font": ["Noto Sans Condensed Bold"],
-        "text-anchor": "top",
-        "text-offset": [0, 0.5],
-        "text-size": 18,
-        "text-letter-spacing": 0.2,
-        "text-optional": true,
-        "icon-padding": 2
-      },
-      "paint": {
-        "text-halo-color": "white",
-        "text-halo-width": 3,
-        "text-halo-blur": 1.5
-      }
-    },
-    {
       "id": "water-tank",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": [
@@ -4231,9 +4158,49 @@
       }
     },
     {
+      "id": "icon-fuel",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "poi",
+      "filter": ["==", "subclass", "fuel"],
+      "layout": {
+        "icon-image": "gas",
+        "icon-size": {"stops": [[14, 0.5], [20, 0.8]]}
+      }
+    },
+    {
+      "id": "icon-memorial",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "poi",
+      "filter": ["in", "subclass", "memorial", "monument"],
+      "layout": {
+        "icon-image": "monument",
+        "icon-size": {"stops": [[14, 0.6], [20, 0.8]]},
+        "text-field": [
+          "coalesce",
+          ["get", "name:he"],
+          ["get", "name:en"],
+          ["get", "name"]
+        ],
+        "text-font": ["Noto Sans Condensed Bold"],
+        "text-anchor": "top",
+        "text-offset": [0, 0.5],
+        "text-size": 18,
+        "text-letter-spacing": 0.2,
+        "text-optional": true,
+        "icon-padding": 2
+      },
+      "paint": {
+        "text-halo-color": "white",
+        "text-halo-width": 3,
+        "text-halo-blur": 1.5
+      }
+    },
+    {
       "id": "icon-parking",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "parking"],
       "layout": {
@@ -4260,9 +4227,37 @@
       }
     },
     {
+      "id": "icon-toilets",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "poi",
+      "filter": ["==", "class", "toilets"],
+      "layout": {
+        "icon-image": "toilet",
+        "icon-size": {"stops": [[14, 0.5], [20, 0.8]]},
+        "icon-anchor": "bottom",
+        "text-field": [
+          "coalesce",
+          ["get", "name:he"],
+          ["get", "name:en"],
+          ["get", "name"]
+        ],
+        "text-font": ["Noto Sans Condensed Bold"],
+        "text-anchor": "top",
+        "text-size": ["step", ["zoom"], 0, 16, 18],
+        "text-optional": true,
+        "icon-padding": 2
+      },
+      "paint": {
+        "text-halo-color": "white",
+        "text-halo-width": 3,
+        "text-halo-blur": 1.5
+      }
+    },
+    {
       "id": "icon-guidepost",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "guidepost"],
       "layout": {
@@ -4290,7 +4285,7 @@
     {
       "id": "icon-bench",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 16,
       "filter": ["==", "subclass", "bench"],
@@ -4319,7 +4314,7 @@
     {
       "id": "icon-picnic",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "picnic_site"],
       "layout": {
@@ -4347,7 +4342,7 @@
     {
       "id": "icon-ruins",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "ruins"],
       "layout": {
@@ -4375,7 +4370,7 @@
     {
       "id": "icon-cave",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": [
         "any",
@@ -4408,7 +4403,7 @@
     {
       "id": "water-drinking",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["==", "subclass", "drinking_water"],
@@ -4438,7 +4433,7 @@
     {
       "id": "icon-viewpoint",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "viewpoint"],
       "layout": {
@@ -4471,7 +4466,7 @@
     {
       "id": "icon-archaeological",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "archaeological_site"],
       "layout": {
@@ -4499,7 +4494,7 @@
     {
       "id": "gate-no_vehicles",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "barrier",
       "filter": ["==", "class", "no_vehicles"],
       "layout": {
@@ -4512,7 +4507,7 @@
     {
       "id": "gate-closed",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "barrier",
       "filter": ["==", "class", "closed_gate"],
       "layout": {
@@ -4525,7 +4520,7 @@
     {
       "id": "name-water-point",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["in", "subclass", "cistern", "spring", "pond", "stream_pool"],
@@ -4553,7 +4548,7 @@
     {
       "id": "water-hole",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["==", "subclass", "waterhole"],
@@ -4584,7 +4579,7 @@
     {
       "id": "water-cistern-bg",
       "type": "circle",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["==", "subclass", "cistern"],
@@ -4596,7 +4591,7 @@
     {
       "id": "water-cistern-circle",
       "type": "circle",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["==", "subclass", "cistern"],
@@ -4610,7 +4605,7 @@
     {
       "id": "water-well",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["==", "subclass", "water_well"],
@@ -4641,7 +4636,7 @@
     {
       "id": "water-area-name",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "water_name",
       "filter": ["==", "$type", "Point"],
       "layout": {
@@ -4665,35 +4660,9 @@
       }
     },
     {
-      "id": "water-area-name-deprecated",
-      "type": "symbol",
-      "source": "IHM",
-      "source-layer": "water_name",
-      "filter": ["==", "$type", "LineString"],
-      "layout": {
-        "text-field": [
-          "coalesce",
-          ["get", "name:he"],
-          ["get", "name:en"],
-          ["get", "name"]
-        ],
-        "symbol-placement": "line-center",
-        "text-font": ["Noto Sans Condensed Bold"],
-        "text-size": 18,
-        "text-letter-spacing": 0.3,
-        "text-rotation-alignment": "viewport"
-      },
-      "paint": {
-        "text-color": "#125595",
-        "text-halo-color": "white",
-        "text-halo-width": 3,
-        "text-halo-blur": 1.5
-      }
-    },
-    {
       "id": "water-spring",
       "type": "circle",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["in", "subclass", "spring", "pond", "stream_pool"],
@@ -4707,7 +4676,7 @@
     {
       "id": "water-waterfall",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 12,
       "filter": ["all", ["==", "subclass", "waterfall"]],
@@ -4738,7 +4707,7 @@
     {
       "id": "icon-camp_site",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "filter": ["==", "subclass", "camp_site"],
       "layout": {
@@ -4766,7 +4735,7 @@
     {
       "id": "peak-dot",
       "type": "circle",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "mountain_peak",
       "minzoom": 13,
       "filter": ["all", ["==", "$type", "Point"]],
@@ -4775,12 +4744,22 @@
     {
       "id": "peak-ele",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "mountain_peak",
       "minzoom": 13,
       "filter": ["all", ["has", "ele"], ["==", "$type", "Point"]],
       "layout": {
-        "text-field": "{ele}",
+        "text-field": [
+          "to-string",
+          [
+            "round",
+            [
+              "*",
+              1.0000000,
+              ["to-number", ["get", "ele"]]
+            ]
+          ]
+        ],
         "symbol-placement": "point",
         "text-font": ["Noto Sans Condensed Bold"],
         "text-letter-spacing": 0.2,
@@ -4799,7 +4778,7 @@
     {
       "id": "name-peak",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "mountain_peak",
       "minzoom": 13,
       "filter": ["all", ["==", "$type", "Point"]],
@@ -4829,7 +4808,7 @@
     {
       "id": "name-park",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "park",
       "minzoom": 9,
       "layout": {
@@ -4854,7 +4833,7 @@
     {
       "id": "name-natural",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "ihm_natural",
       "filter": [
         "<",
@@ -4895,7 +4874,7 @@
     {
       "id": "place-farm",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "place",
       "minzoom": 12,
       "filter": ["all", ["in", "class", "isolated_dwelling", "hamlet"]],
@@ -4920,9 +4899,102 @@
       }
     },
     {
+      "id": "place-cafe",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "poi",
+      "minzoom": 11,
+      "filter": ["all", ["==", "class", "cafe"]],
+      "layout": {
+        "text-field": [
+          "coalesce",
+          ["get", "name:he"],
+          ["get", "name:en"],
+          ["get", "name"]
+        ],
+        "symbol-placement": "point",
+        "text-font": ["Noto Sans Condensed Bold"],
+        "text-size": 18,
+        "text-letter-spacing": 0.2,
+        "text-max-width": 5,
+        "icon-size": {"stops": [[14, 0.5], [20, 0.8]]},
+        "icon-image": "cafe",
+        "text-offset": [0, 1],
+        "text-anchor": "top"
+      },
+      "paint": {
+        "text-color": "#404040",
+        "text-halo-color": "white",
+        "text-halo-width": 3,
+        "text-halo-blur": 1.5
+      }
+    },
+    {
+      "id": "place-restaurant",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "poi",
+      "minzoom": 11,
+      "filter": ["all", ["==", "class", "restaurant"]],
+      "layout": {
+        "text-field": [
+          "coalesce",
+          ["get", "name:he"],
+          ["get", "name:en"],
+          ["get", "name"]
+        ],
+        "symbol-placement": "point",
+        "text-font": ["Noto Sans Condensed Bold"],
+        "text-size": 18,
+        "text-letter-spacing": 0.2,
+        "text-max-width": 5,
+        "icon-size": {"stops": [[14, 0.5], [20, 0.8]]},
+        "icon-image": "food",
+        "text-offset": [0, 1],
+        "text-anchor": "top"
+      },
+      "paint": {
+        "text-color": "#404040",
+        "text-halo-color": "white",
+        "text-halo-width": 3,
+        "text-halo-blur": 1.5
+      }
+    },
+    {
+      "id": "place-hotel",
+      "type": "symbol",
+      "source": "mapeak-schema",
+      "source-layer": "poi",
+      "minzoom": 11,
+      "filter": ["all", ["==", "class", "lodging"]],
+      "layout": {
+        "text-field": [
+          "coalesce",
+          ["get", "name:he"],
+          ["get", "name:en"],
+          ["get", "name"]
+        ],
+        "symbol-placement": "point",
+        "text-font": ["Noto Sans Condensed Bold"],
+        "text-size": 18,
+        "text-letter-spacing": 0.2,
+        "text-max-width": 5,
+        "icon-size": {"stops": [[14, 0.5], [20, 0.8]]},
+        "icon-image": "hotel",
+        "text-offset": [0, 1],
+        "text-anchor": "top"
+      },
+      "paint": {
+        "text-color": "#404040",
+        "text-halo-color": "white",
+        "text-halo-width": 3,
+        "text-halo-blur": 1.5
+      }
+    },
+    {
       "id": "place-alpine_hut",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "poi",
       "minzoom": 11,
       "filter": ["all", ["==", "subclass", "alpine_hut"]],
@@ -4953,7 +5025,7 @@
     {
       "id": "place-village",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "place",
       "minzoom": 11,
       "filter": ["all", ["==", "class", "village"]],
@@ -4980,7 +5052,7 @@
     {
       "id": "place-suburb",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "place",
       "minzoom": 13,
       "maxzoom": 15,
@@ -5008,7 +5080,7 @@
     {
       "id": "place-town",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "place",
       "minzoom": 10,
       "maxzoom": 13,
@@ -5036,7 +5108,7 @@
     {
       "id": "place-city",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "place",
       "minzoom": 5,
       "maxzoom": 13,
@@ -5064,7 +5136,7 @@
     {
       "id": "place-country",
       "type": "symbol",
-      "source": "IHM",
+      "source": "mapeak-schema",
       "source-layer": "place",
       "maxzoom": 8,
       "filter": ["==", "class", "country"],
@@ -5091,7 +5163,7 @@
     {
       "id": "name-trail",
       "type": "symbol",
-      "source": "IHM-code",
+      "source": "mapeak-code",
       "source-layer": "trail_name",
       "minzoom": 13,
       "filter": ["all", ["in", "class", "hiking"]],
@@ -5106,16 +5178,22 @@
         "text-offset": [0, -1],
         "text-letter-spacing": 0.2,
         "symbol-placement": "line",
+        "text-max-angle": 90,
         "symbol-spacing": 400
       },
       "paint": {
         "text-color": ["coalesce", ["get", "colour"], "black"],
-        "text-halo-color": "white",
+        "text-halo-color": [
+          "match",
+          ["get", "colour"],
+          "white",
+          "#999",
+          "white"
+        ],
         "text-halo-width": 3,
         "text-halo-blur": 1.5
       }
     }
   ],
-  "id": "mapeak-hike",
-  "owner": "Mapeak.com"
+  "id": "mapeak-hike"
 }
