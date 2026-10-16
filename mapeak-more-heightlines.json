@@ -153,15 +153,6 @@
       "paint": {"fill-color": "#BFBFBF"}
     },
     {
-      "id": "Terrain",
-      "type": "hillshade",
-      "source": "DEM",
-      "paint": {
-        "hillshade-exaggeration": {"stops": [[6, 0], [15, 0.33]]},
-        "hillshade-method": "igor"
-      }
-    },
-    {
       "id": "area-military",
       "type": "fill",
       "source": "mapeak-schema",
