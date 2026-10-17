@@ -1,0 +1,203 @@
+{
+  "version": 8,
+  "name": "Bur Veam Haaretz",
+  "sources": {
+    "mapeak-schema": {
+      "type": "vector",
+      "url": "https://mapeak.com/vector/data/mapeak-schema.json",
+      "tiles": ["https://mapeak.com/vector/data/mapeak-schema/{z}/{x}/{y}.mvt"],
+      "maxzoom": 14,
+      "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
+    },
+    "mapeak-code": {
+      "type": "vector",
+      "url": "https://mapeak.com/vector/data/mapeak-code.json",
+      "tiles": ["https://mapeak.com/vector/data/mapeak-code/{z}/{x}/{y}.mvt"],
+      "maxzoom": 14,
+      "attribution": "<a href=\"https://www.openmaptiles.org/\" target=\"_blank\">&copy; OpenMapTiles</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>"
+    },
+    "DEM": {
+      "type": "raster-dem",
+      "url": "https://mapeak.com/vector/data/raster-dem.json",
+      "tiles": ["https://mapeak.com/vector/data/raster-dem/{z}/{x}/{y}.webp"],
+      "minzoom": 7,
+      "maxzoom": 11,
+      "tileSize": 512,
+      "encoding": "terrarium",
+      "attribution": "<a href=https://earth.jaxa.jp/en/data/policy/>AW3D30 (JAXA)</a>"
+    },
+    "Contour": {
+      "type": "vector",
+      "url": "https://mapeak.com/vector/data/contour.json",
+      "tiles": ["https://mapeak.com/vector/data/contour/{z}/{x}/{y}.mvt"],
+      "minzoom": 7,
+      "maxzoom": 12,
+      "attribution": "<a href=https://earth.jaxa.jp/en/data/policy/>AW3D30 (JAXA)</a>"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {"background-color": "rgb(250, 247, 225)"}
+    },
+    {
+      "id": "contour-minor-casing",
+      "type": "line",
+      "source": "Contour",
+      "source-layer": "contours",
+      "minzoom": 9,
+      "filter": [
+        "let",
+        "ele",
+        ["to-number", ["get", "ele"]],
+        ["==", 0, ["%", ["var", "ele"], 10]]
+      ],
+      "paint": {
+        "line-color": "white",
+        "line-width": 2,
+        "line-blur": 2,
+        "line-opacity": 0.5
+      }
+    },
+    {
+      "id": "contour-major-casing",
+      "type": "line",
+      "source": "Contour",
+      "source-layer": "contours",
+      "minzoom": 9,
+      "filter": [
+        "let",
+        "ele",
+        ["to-number", ["get", "ele"]],
+        ["==", 0, ["%", ["var", "ele"], 50]]
+      ],
+      "paint": {
+        "line-color": "white",
+        "line-width": 3,
+        "line-blur": 2,
+        "line-opacity": 0.5
+      }
+    },
+    {
+      "id": "contour-minor",
+      "type": "line",
+      "source": "Contour",
+      "source-layer": "contours",
+      "minzoom": 9,
+      "filter": [
+        "let",
+        "ele",
+        ["to-number", ["get", "ele"]],
+        ["==", 0, ["%", ["var", "ele"], 10]]
+      ],
+      "paint": {
+        "line-color": "rgb(161, 127, 86)",
+        "line-width": 1,
+        "line-opacity": {"stops": [[10, 0.15], [13, 0.5]]}
+      }
+    },
+    {
+      "id": "contour-major",
+      "type": "line",
+      "source": "Contour",
+      "source-layer": "contours",
+      "minzoom": 9,
+      "filter": [
+        "let",
+        "ele",
+        ["to-number", ["get", "ele"]],
+        ["==", 0, ["%", ["var", "ele"], 50]]
+      ]
+    },
+    {
+      "id": "water-area",
+      "type": "fill",
+      "source": "mapeak-schema",
+      "source-layer": "water",
+      "filter": ["!=", "intermittent", 1],
+      "paint": {
+        "fill-color": "#8EBDF0",
+        "fill-antialias": true,
+        "fill-outline-color": [
+          "match",
+          ["get", "class"],
+          "ocean",
+          "transparent",
+          "#1E80E2"
+        ]
+      }
+    },
+    {
+      "id": "road-secondary",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "transportation",
+      "minzoom": 6,
+      "filter": [
+        "all",
+        ["==", "hike_class", "secondary"],
+        ["!in", "brunnel", "bridge", "tunnel"]
+      ],
+      "layout": {"line-cap": "round", "line-join": "round"},
+      "paint": {
+        "line-color": "#303030",
+        "line-width": {
+          "base": 2,
+          "stops": [[11, 1], [12, 2], [16, 4], [22, 16]]
+        }
+      }
+    },
+    {
+      "id": "road-primary",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "transportation",
+      "minzoom": 4,
+      "filter": [
+        "all",
+        ["==", "hike_class", "primary"],
+        ["!in", "brunnel", "bridge", "tunnel"]
+      ],
+      "layout": {"line-cap": "round", "line-join": "round"},
+      "paint": {
+        "line-color": "green",
+        "line-width": {"base": 2, "stops": [[13, 2], [16, 8], [22, 32]]}
+      }
+    },
+    {
+      "id": "road-trunk",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "transportation",
+      "minzoom": 3,
+      "filter": [
+        "all",
+        ["==", "hike_class", "trunk"],
+        ["!in", "brunnel", "bridge", "tunnel"]
+      ],
+      "layout": {"line-cap": "round", "line-join": "round"},
+      "paint": {
+        "line-color": "red",
+        "line-width": {"base": 2, "stops": [[13, 2], [16, 8], [22, 32]]}
+      }
+    },
+    {
+      "id": "road-motorway",
+      "type": "line",
+      "source": "mapeak-schema",
+      "source-layer": "transportation",
+      "minzoom": 3,
+      "filter": [
+        "all",
+        ["==", "hike_class", "motorway"],
+        ["!in", "brunnel", "bridge", "tunnel"]
+      ],
+      "layout": {"line-cap": "round", "line-join": "round"},
+      "paint": {
+        "line-color": "blue",
+        "line-width": {"base": 2, "stops": [[13, 2], [16, 8], [22, 32]]}
+      }
+    }
+  ]
+}
