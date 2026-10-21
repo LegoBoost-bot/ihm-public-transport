@@ -3594,8 +3594,9 @@
         "text-max-angle": 45,
         "text-letter-spacing": 0.15,
         "text-keep-upright": true,
-        "text-size": 14,
-        "symbol-spacing": 500
+        "text-size": 12,
+        "symbol-spacing": 250,
+        "text-allow-overlap": true
       },
       "paint": {
         "text-halo-color": "rgba(255, 255, 255,0.8)",
